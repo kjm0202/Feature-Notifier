@@ -1,12 +1,10 @@
 import 'package:feature_notifier/feature_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_storage/get_storage.dart';
 
 void main() async {
   setUpAll(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    await GetStorage.init();
   });
   testWidgets("Test Feature Card Notifier Widget", (WidgetTester tester) async {
     ///Arrange widget for test
@@ -14,7 +12,7 @@ void main() async {
       title: "Test Title",
       hasButton: true,
       description: 'Test Description',
-      featureKey: 1,
+      featureKey: 'test_feature_key',
       onClose: () {},
       onTapCard: () {},
       showIcon: true,
