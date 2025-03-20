@@ -1,10 +1,11 @@
 import 'package:feature_notifier/src/utils/storage.dart';
-import 'package:get_storage/get_storage.dart';
 
 class FeatureNotifier {
-  ///Start the persisting of all feature notifiers. It is important to `await` this method or side effects will occur.
+  ///Start the persisting of all feature notifiers. It is important to `await` this method
+  ///but shared_preferences는 별도의 초기화가 필요 없음
   static Future<void> init() async {
-    await GetStorage.init();
+    // No initialization needed for shared_preferences
+    return;
   }
 
   ///Closes your custom Feature Notifier widget.
@@ -13,8 +14,8 @@ class FeatureNotifier {
   ///widget tree, you need to use the `FeatureNotifier.isClosed()` method
   ///which returns a bool, to read the value of your currently displayed or
   ///closed feature notifier, and show or hide your custom widget accordingly.
-  static void close({required int featureKey}) {
-    FeatureNotifierStorage.write(value: true, id: featureKey);
+  static Future<void> close({required String featureKey}) async {
+    await FeatureNotifierStorage.write(value: true, id: featureKey);
   }
 
   ///Whether a particular feature notifier (custom or not) has been closed or not.
@@ -22,8 +23,8 @@ class FeatureNotifier {
   ///This is helpful when you want to update the state of your UI to show or hide
   /// a custom feature notifier that is opened (```isClosed() is false```)
   /// or closed (```isClosed() is true```) respectively.
-  static bool isClosed({required int featureKey}) {
-    return FeatureNotifierStorage.read(featureKey);
+  static Future<bool> isClosed({required String featureKey}) async {
+    return await FeatureNotifierStorage.read(featureKey);
   }
 
   ///Keeps a particular feature notifier alive after it has been previously closed.
@@ -32,8 +33,8 @@ class FeatureNotifier {
   /// to reset the `isClosed()` value to `false`. This is useful when you want to
   /// choose to display a feature notifier after a new login, which means that this
   ///  method has to be called when the user logs out so that it can be persisted.
-  static void persist({required int featureKey}) {
-    FeatureNotifierStorage.erase(featureKey);
+  static Future<void> persist({required String featureKey}) async {
+    await FeatureNotifierStorage.erase(featureKey);
   }
 
   ///Keeps all feature notifiers alive after they have been previously closed.
@@ -44,7 +45,7 @@ class FeatureNotifier {
   /// has to be called when the user logs out so that all values can be persisted/reset.
   ///  To persist a single feature notifier, use the `FeatureNotifier.persist()`
   ///and pass in the `featureKey` to identify the feature to be persisted.
-  static void persistAll() {
-    FeatureNotifierStorage.eraseAll();
+  static Future<void> persistAll() async {
+    await FeatureNotifierStorage.eraseAll();
   }
 }

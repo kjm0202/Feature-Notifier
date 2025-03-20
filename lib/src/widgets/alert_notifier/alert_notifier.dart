@@ -20,7 +20,7 @@ class FeatureAlertNotifier {
   /// method.
   static Future<Widget?> notify(
     BuildContext context, {
-    required int featureKey,
+    required String featureKey,
     required void Function() onClose,
     required String description,
     required String title,
@@ -40,102 +40,129 @@ class FeatureAlertNotifier {
     Color? buttonBackgroundColor,
     Widget? body,
   }) async {
-    !FeatureNotifierStorage.read(featureKey)
-        ? showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                  backgroundColor: backgroundColor,
-                  title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  right: (showIcon ?? false ? 12 : 0)),
-                              child: selectIcon(
-                                showIcon: showIcon,
-                                icon: icon,
-                              ),
-                            ),
-                            SizedBox(
-                              // width: MediaQuery.of(context).size.width *
-                              //     .7,
-                              child: Text(
-                                title,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: titleFontSize ?? 16,
-                                    color: titleColor),
-                              ),
-                            ),
-                          ],
-                        ),
-                        GestureDetector(
-                          child: Icon(
-                            Icons.close,
-                            color: closeIconColor,
-                          ),
-                          onTap: () {
-                            Navigator.pop(context);
-                            FeatureNotifierStorage.write(
-                                value: true, id: featureKey);
-                            onClose();
-                            print("close Feature");
-                          },
-                        )
-                      ]),
-                  content: Column(
+    final isClosed = await FeatureNotifierStorage.read(featureKey);
+    if (isClosed) return Container();
+
+    return showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (context) {
+          final theme = Theme.of(context);
+          final isDarkMode = theme.brightness == Brightness.dark;
+
+          // 다크모드에 따른 기본 색상
+          final defaultBackgroundColor =
+              isDarkMode ? Colors.grey[800] : theme.dialogBackgroundColor;
+          final defaultTitleColor =
+              isDarkMode ? Colors.white : theme.textTheme.titleLarge?.color;
+          final defaultDescriptionColor =
+              isDarkMode ? Colors.grey[300] : theme.textTheme.bodyMedium?.color;
+          final defaultCloseIconColor =
+              isDarkMode ? Colors.white70 : Colors.black54;
+          final defaultButtonBackgroundColor = isDarkMode
+              ? Colors.teal[700]
+              : const Color.fromARGB(255, 43, 93, 45);
+          final defaultButtonTextColor = Colors.white;
+
+          return PopScope(
+            onPopInvoked: (didPop) async {
+              // 뒤로가기 버튼이나 바깥 클릭으로 닫힐 때도 상태 저장
+              if (didPop) {
+                await FeatureNotifierStorage.write(value: true, id: featureKey);
+                onClose();
+              }
+            },
+            child: AlertDialog(
+                backgroundColor: backgroundColor ?? defaultBackgroundColor,
+                title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        description,
-                        style: TextStyle(
-                            fontSize: descriptionFontSize ?? 16,
-                            color: descriptionColor),
+                      Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                                right: (showIcon ?? false ? 12 : 0)),
+                            child: selectIcon(
+                              showIcon: showIcon,
+                              icon: icon,
+                            ),
+                          ),
+                          SizedBox(
+                            // width: MediaQuery.of(context).size.width *
+                            //     .7,
+                            child: Text(
+                              title,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: titleFontSize ?? 16,
+                                  color: titleColor ?? defaultTitleColor),
+                            ),
+                          ),
+                        ],
                       ),
-                      body ?? Container(),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12.0),
-                        child: hasButton != null && hasButton != false
-                            ? ElevatedButton(
-                                onPressed: onTapButton,
-                                style: ButtonStyle(
-                                  elevation:
-                                      MaterialStateProperty.all<double>(10),
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color?>(
-                                    buttonBackgroundColor ??
-                                        const Color.fromARGB(255, 43, 93, 45),
-                                  ),
-                                  foregroundColor:
-                                      MaterialStateProperty.all<Color?>(
-                                    buttonTextColor ?? Colors.white,
-                                  ),
+                      GestureDetector(
+                        child: Icon(
+                          Icons.close,
+                          color: closeIconColor ?? defaultCloseIconColor,
+                        ),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await FeatureNotifierStorage.write(
+                              value: true, id: featureKey);
+                          onClose();
+                        },
+                      )
+                    ]),
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      description,
+                      style: TextStyle(
+                          fontSize: descriptionFontSize ?? 16,
+                          color: descriptionColor ?? defaultDescriptionColor),
+                    ),
+                    body ?? Container(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0),
+                      child: hasButton != null && hasButton != false
+                          ? ElevatedButton(
+                              onPressed: onTapButton,
+                              style: ButtonStyle(
+                                elevation:
+                                    MaterialStateProperty.all<double>(10),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color?>(
+                                  buttonBackgroundColor ??
+                                      defaultButtonBackgroundColor,
                                 ),
-                                child: SizedBox(
-                                  // width: MediaQuery.of(context).size.width,
-                                  height: 45,
-                                  child: Center(
-                                    child: Text(
-                                      buttonText ?? "Explore Feature",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        textBaseline: TextBaseline.alphabetic,
-                                        fontSize: buttonTextFontSize,
-                                      ),
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color?>(
+                                  buttonTextColor ?? defaultButtonTextColor,
+                                ),
+                              ),
+                              child: SizedBox(
+                                // width: MediaQuery.of(context).size.width,
+                                height: 45,
+                                child: Center(
+                                  child: Text(
+                                    buttonText ?? "Explore Feature",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      textBaseline: TextBaseline.alphabetic,
+                                      fontSize: buttonTextFontSize,
                                     ),
                                   ),
                                 ),
-                              )
-                            : Container(),
-                      )
-                    ],
-                  ));
-            })
-        : Container();
+                              ),
+                            )
+                          : Container(),
+                    )
+                  ],
+                )),
+          );
+        });
   }
 }

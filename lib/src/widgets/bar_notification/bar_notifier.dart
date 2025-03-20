@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 /// notifier into the widget tree.
 
 class FeatureBarNotifier extends StatefulWidget {
-  FeatureBarNotifier(
+  const FeatureBarNotifier(
       {super.key,
       required this.featureKey,
       required this.onClose,
@@ -21,6 +21,7 @@ class FeatureBarNotifier extends StatefulWidget {
       this.strokeColor,
       this.strokeWidth,
       this.titleColor,
+      this.closeIconColor,
       this.titleFontSize,
       this.showIcon,
       this.fontWeight});
@@ -28,40 +29,68 @@ class FeatureBarNotifier extends StatefulWidget {
   @override
   State<FeatureBarNotifier> createState() => _FeatureBarNotifierState();
 
-  Color? backgroundColor;
-  Widget? icon;
-  void Function() onClose;
-  void Function() onTapCard;
-  Color? strokeColor;
-  double? strokeWidth;
-  FontWeight? fontWeight;
+  final Color? backgroundColor;
+  final Widget? icon;
+  final void Function() onClose;
+  final void Function() onTapCard;
+  final Color? strokeColor;
+  final double? strokeWidth;
+  final FontWeight? fontWeight;
 
   ///This is the tile of the feature that you want to show to your users
-  String title;
-  Color? titleColor;
-  Color? closeIconColor;
-  double? titleFontSize;
-  bool? showIcon = true;
+  final String title;
+  final Color? titleColor;
+  final Color? closeIconColor;
+  final double? titleFontSize;
+  final bool? showIcon;
 
   ///This key is used to identify the particular feature that was built in the UI. Two features should not have the same feature key to avoid mis-behaviours
-  int featureKey;
+  final String featureKey;
 }
 
 class _FeatureBarNotifierState extends State<FeatureBarNotifier> {
+  bool _isVisible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkVisibility();
+  }
+
+  Future<void> _checkVisibility() async {
+    final isClosed = await FeatureNotifierStorage.read(widget.featureKey);
+    if (mounted) {
+      setState(() {
+        _isVisible = !isClosed;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return !FeatureNotifierStorage.read(widget.featureKey)
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    // 다크모드에 따른 기본 색상
+    final defaultBackgroundColor =
+        isDarkMode ? Colors.grey[800] : Colors.green[50];
+    final defaultStrokeColor = isDarkMode ? Colors.grey[600] : Colors.green;
+    final defaultTitleColor =
+        isDarkMode ? Colors.white : theme.textTheme.titleLarge?.color;
+    final defaultCloseIconColor = isDarkMode ? Colors.white70 : Colors.black54;
+
+    return _isVisible
         ? LayoutBuilder(builder: (context, constraint) {
             return GestureDetector(
               onTap: widget.onTapCard,
               child: Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                      color: widget.backgroundColor ?? Colors.green[50],
+                      color: widget.backgroundColor ?? defaultBackgroundColor,
                       border: Border.all(
                           width: widget.strokeWidth ?? 1,
-                          color: widget.strokeColor ?? Colors.green),
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                          color: widget.strokeColor ?? defaultStrokeColor!),
+                      borderRadius: const BorderRadius.all(Radius.circular(5))),
                   child: Center(
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -80,17 +109,22 @@ class _FeatureBarNotifierState extends State<FeatureBarNotifier> {
                                   fontWeight:
                                       widget.fontWeight ?? FontWeight.w400,
                                   fontSize: widget.titleFontSize ?? 16,
-                                  color: widget.titleColor),
+                                  color:
+                                      widget.titleColor ?? defaultTitleColor),
                             ),
                           ),
                           GestureDetector(
-                            child:
-                                Icon(Icons.close, color: widget.closeIconColor),
-                            onTap: () {
-                              setState(() {
-                                FeatureNotifierStorage.write(
-                                    value: true, id: widget.featureKey);
-                              });
+                            child: Icon(Icons.close,
+                                color: widget.closeIconColor ??
+                                    defaultCloseIconColor),
+                            onTap: () async {
+                              await FeatureNotifierStorage.write(
+                                  value: true, id: widget.featureKey);
+                              if (mounted) {
+                                setState(() {
+                                  _isVisible = false;
+                                });
+                              }
                               widget.onClose();
                             },
                           )

@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   hasButton: true,
                   description:
                       'You can now show items without inviting friends!',
-                  featureKey: 1,
+                  featureKey: 'show_items_without_inviting_friends',
                   onClose: () {},
                   onTapCard: () {},
                   showIcon: true,
@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   title:
                       "Testing this out You have pushed the button this many times:",
 
-                  featureKey: 2,
+                  featureKey: 'how_mant_times_button_pushed',
                   onClose: () {},
                   onTapCard: () {},
                   showIcon: true,

@@ -1,6 +1,7 @@
-import 'package:get_storage/get_storage.dart';
-
-///Start the persisting of all feature notifiers. It is import to `await` this method or side effects will occur.
+///Start the persisting of all feature notifiers.
+///shared_preferences는 별도의 초기화가 필요하지 않으므로 이 함수는 이제 아무 것도 하지 않습니다.
+///하위 호환성을 위해 함수를 유지합니다.
 Future<void> featureNotifierInit() async {
-  await GetStorage.init();
+  // shared_preferences는 별도의 초기화가 필요 없음
+  return;
 }

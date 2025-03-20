@@ -1,23 +1,28 @@
-import 'package:get_storage/get_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FeatureNotifierStorage {
-  static GetStorage storage = GetStorage();
-
-  static write({required bool value, required int id}) {
-    final storage = GetStorage();
-    storage.write("isViewed/$id", value);
+  static Future<void> write({required bool value, required String id}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("isViewed/$id", value);
   }
 
-  static bool read(int id) {
-    final storage = GetStorage();
-    return storage.read("isViewed/$id") ?? false;
+  static Future<bool> read(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool("isViewed/$id") ?? false;
   }
 
-  static erase(id) {
-    GetStorage().write("isViewed/$id", false);
+  static Future<void> erase(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("isViewed/$id", false);
   }
 
-  static eraseAll() {
-    GetStorage().erase();
+  static Future<void> eraseAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys();
+    for (final key in keys) {
+      if (key.startsWith("isViewed/")) {
+        await prefs.setBool(key, false);
+      }
+    }
   }
 }

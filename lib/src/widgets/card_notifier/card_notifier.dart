@@ -38,86 +38,119 @@ class FeatureCardNotifier extends StatefulWidget implements IFeatureNotifier {
   State<FeatureCardNotifier> createState() => _FeatureCardNotifierState();
 
   @override
-  Color? backgroundColor;
+  final Color? backgroundColor;
 
   @override
-  Color? closeIconColor;
+  final Color? closeIconColor;
 
   @override
-  String? buttonText;
+  final String? buttonText;
 
   @override
-  Color? buttonTextColor;
+  final Color? buttonTextColor;
 
   @override
-  double? buttonTextFontSize;
+  final double? buttonTextFontSize;
 
   @override
-  String description;
+  final String description;
 
   @override
-  Color? descriptionColor;
+  final Color? descriptionColor;
 
   @override
-  double? descriptionFontSize;
+  final double? descriptionFontSize;
 
   @override
-  Widget? icon;
+  final Widget? icon;
 
   @override
-  void Function() onClose;
+  final void Function() onClose;
 
   @override
-  void Function()? onTapButton;
+  final void Function()? onTapButton;
 
   @override
-  void Function() onTapCard;
+  final void Function() onTapCard;
 
   @override
-  Color? strokeColor;
+  final Color? strokeColor;
 
   @override
-  double? strokeWidth;
+  final double? strokeWidth;
 
   ///This is the title of the feature that you want to show to your users
   @override
-  String title;
+  final String title;
 
   @override
-  Color? titleColor;
+  final Color? titleColor;
 
   @override
-  double? titleFontSize;
+  final double? titleFontSize;
 
   @override
-  Color? buttonBackgroundColor;
+  final Color? buttonBackgroundColor;
 
   @override
-  bool? showIcon = true;
+  final bool? showIcon;
 
   ///This key is used to identify the particular feature that was built in the UI. Two features should not have the same feature key to avoid mis-behaviours
   @override
-  int featureKey;
+  final String featureKey;
 
   @override
-  bool? hasButton = false;
+  final bool? hasButton;
 }
 
 class _FeatureCardNotifierState extends State<FeatureCardNotifier> {
+  bool _isVisible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkVisibility();
+  }
+
+  Future<void> _checkVisibility() async {
+    final isClosed = await FeatureNotifierStorage.read(widget.featureKey);
+    if (mounted) {
+      setState(() {
+        _isVisible = !isClosed;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return !FeatureNotifierStorage.read(widget.featureKey)
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    // 다크모드에 따른 기본 색상
+    final defaultBackgroundColor =
+        isDarkMode ? Colors.grey[800] : Colors.green[50];
+    final defaultStrokeColor = isDarkMode ? Colors.grey[600] : Colors.green;
+    final defaultTitleColor =
+        isDarkMode ? Colors.white : theme.textTheme.titleLarge?.color;
+    final defaultDescriptionColor =
+        isDarkMode ? Colors.grey[300] : theme.textTheme.bodyMedium?.color;
+    final defaultCloseIconColor = isDarkMode ? Colors.white70 : Colors.black54;
+    final defaultButtonBackgroundColor =
+        isDarkMode ? Colors.teal[700] : const Color.fromARGB(255, 43, 93, 45);
+    final defaultButtonTextColor = Colors.white;
+
+    return _isVisible
         ? LayoutBuilder(builder: (context, constraint) {
             return GestureDetector(
               onTap: widget.onTapCard,
               child: Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                      color: widget.backgroundColor ?? Colors.green[50],
+                      color: widget.backgroundColor ?? defaultBackgroundColor,
                       border: Border.all(
                           width: widget.strokeWidth ?? 1,
-                          color: widget.strokeColor ?? Colors.green),
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                          color: widget.strokeColor ?? defaultStrokeColor!),
+                      borderRadius: const BorderRadius.all(Radius.circular(5))),
                   child: Center(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +181,8 @@ class _FeatureCardNotifierState extends State<FeatureCardNotifier> {
                                             fontWeight: FontWeight.w700,
                                             fontSize:
                                                 widget.titleFontSize ?? 16,
-                                            color: widget.titleColor),
+                                            color: widget.titleColor ??
+                                                defaultTitleColor),
                                       ),
                                     ),
                                   ],
@@ -156,13 +190,17 @@ class _FeatureCardNotifierState extends State<FeatureCardNotifier> {
                                 GestureDetector(
                                   child: Icon(
                                     Icons.close,
-                                    color: widget.closeIconColor,
+                                    color: widget.closeIconColor ??
+                                        defaultCloseIconColor,
                                   ),
-                                  onTap: () {
-                                    setState(() {
-                                      FeatureNotifierStorage.write(
-                                          value: true, id: widget.featureKey);
-                                    });
+                                  onTap: () async {
+                                    await FeatureNotifierStorage.write(
+                                        value: true, id: widget.featureKey);
+                                    if (mounted) {
+                                      setState(() {
+                                        _isVisible = false;
+                                      });
+                                    }
                                     widget.onClose();
                                   },
                                 )
@@ -172,7 +210,8 @@ class _FeatureCardNotifierState extends State<FeatureCardNotifier> {
                           widget.description,
                           style: TextStyle(
                               fontSize: widget.descriptionFontSize ?? 16,
-                              color: widget.descriptionColor),
+                              color: widget.descriptionColor ??
+                                  defaultDescriptionColor),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 12.0),
@@ -186,11 +225,12 @@ class _FeatureCardNotifierState extends State<FeatureCardNotifier> {
                                     backgroundColor:
                                         MaterialStateProperty.all<Color?>(
                                       widget.buttonBackgroundColor ??
-                                          const Color.fromARGB(255, 43, 93, 45),
+                                          defaultButtonBackgroundColor,
                                     ),
                                     foregroundColor:
                                         MaterialStateProperty.all<Color?>(
-                                      widget.buttonTextColor ?? Colors.white,
+                                      widget.buttonTextColor ??
+                                          defaultButtonTextColor,
                                     ),
                                   ),
                                   child: Text(

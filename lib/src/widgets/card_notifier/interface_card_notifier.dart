@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 
-abstract class ICardFeatureNotifier {
-  late int featureKey;
-  late String title;
-  late Color? titleColor;
-  late double? titleFontSize;
-  late String description;
-  late Color? descriptionColor;
-  late double? descriptionFontSize;
-  late String? buttonText;
-  late Color? buttonTextColor;
-  late double? buttonTextFontSize;
-  late Color? buttonBackgroundColor;
-  late Widget? icon;
-  late bool? showIcon;
-  late void Function() onClose;
-  late void Function()? onTapButton;
-  late Color? backgroundColor;
-  late Color? strokeColor;
-  late double? strokeWidth;
-  late void Function() onTapCard;
-  late bool? hasButton;
+abstract class IFeatureNotifier {
+  String title = "";
+  String description = "";
+  Color? backgroundColor;
+  Widget? icon;
+  Color? strokeColor;
+  double? strokeWidth;
+  bool? showIcon = true;
+  Color? titleColor;
+  double? titleFontSize;
+  Color? descriptionColor;
+  double? descriptionFontSize;
+  String? buttonText;
+  Color? buttonTextColor;
+  Color? buttonBackgroundColor;
+  double? buttonTextFontSize;
+  Color? closeIconColor;
+  String featureKey = "";
+  bool? hasButton = false;
+  void Function() onClose = () => {};
+  void Function() onTapCard = () => {};
+  void Function()? onTapButton;
 }
