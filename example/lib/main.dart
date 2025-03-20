@@ -1,4 +1,5 @@
 import 'package:feature_notifier/feature_notifier.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
@@ -78,24 +79,62 @@ class _MyHomePageState extends State<MyHomePage> {
                   onTapButton: () {},
                 )),
             Padding(
-                padding: const EdgeInsets.all(20),
-                child: FeatureBarNotifier(
-                  title:
-                      "Testing this out You have pushed the button this many times:",
+              padding: const EdgeInsets.all(20),
+              child: FeatureBarNotifier(
+                title:
+                    "Testing this out You have pushed the button this many times:",
 
-                  featureKey: 'how_mant_times_button_pushed',
-                  onClose: () {},
-                  onTapCard: () {},
-                  showIcon: true,
-                  // icon: Text("dog"),
-                )),
+                featureKey: 'how_mant_times_button_pushed',
+                onClose: () {},
+                onTapCard: () {},
+                showIcon: true,
+                // icon: Text("dog"),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                FeatureBottomModalSheetNotifier.notify(
+                  context,
+                  title: "Modal sheet example",
+                  description: "Modal sheet is a good way to display a feature",
+                  onClose: () {
+                    debugPrint("The modal sheet was closed");
+                  },
+                  featureKey: 'test_modal_sheet',
+                  hasButton: true,
+                );
+              },
+              child: const Text("Show modal sheet"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                FeatureAlertNotifier.notify(
+                  context,
+                  title: "Alert example",
+                  description: "Alert is a good way to display a feature",
+                  onClose: () {
+                    debugPrint("The alert was closed");
+                  },
+                  featureKey: 'test_alert',
+                  hasButton: true,
+                );
+              },
+              child: const Text("Show alert"),
+            ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _reset,
-        tooltip: 'Persist all features',
-        child: const Icon(Icons.clear),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          _reset();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Reset completed"),
+            ),
+          );
+        },
+        label: const Text('Persist all features'),
+        icon: const Icon(Icons.clear),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
