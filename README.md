@@ -1,38 +1,48 @@
 # Feature Notifier
 
-<img src = "https://github.com/fiizzy/feature-notifier/blob/main/screenshots/logo.png" >
+<img src = "https://github.com/kjm0202/feature-notifier/blob/main/screenshots/logo.png" >
 
 Notify your users of new features within your app after an update.
 
-#### What this package offers?
+## What this package offers?
 
 - Display notifications about new features.
 - Once a notification is closed by the user, it won't come up again except you programatically persist it.
 - Create your custom notification by accessing methods that let you persist and change the state of your custom notification based on user interactions.
 
-#### Example Gallery
+## What changed in plus version?
+
+- Use `Text()` widget instead of String in title/description parameters, for better customizing
+- Use `String` instead of `int` in `featureKey` parameter, for better classification of features. (ex: 'dark_mode_support')
+- Use `shared_preferences` instead of `get_storage`, for better maintenance and support such as WASM.
+- Support dark mode
+- You can now select whether show close button or not using `showCloseIcon`. (default: true)
+- Tidy up some design of widgets
+- (TODO) Add Cupertino style widgets
+
+## Example Gallery
 
 | <img src = "https://github.com/fiizzy/feature-notifier/blob/main/screenshots/bar-notifier.png?raw=true" height="600" >         | <img src = "https://github.com/fiizzy/feature-notifier/blob/main/screenshots/card-notifier-1.png?raw=true" height="600" > |
 | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
 | <img src = "https://github.com/fiizzy/feature-notifier/blob/main/screenshots/bottom-modal-sheet-2.png?raw=true" height="600" > | <img src = "https://github.com/fiizzy/feature-notifier/blob/main/screenshots/alert-dialog.png?raw=true" height="600" >    |
 
-##### Usage
+## Usage
 
 Add it to your package’s pubspec.yaml file
 
 ```dart
-feature_notifier: latest
+feature_notifier_plus: latest
 ```
 
 import feature notifier into your code
 
 ```dart
-import 'package:feature_notifier/feature_notifier.dart';
+import 'package:feature_notifier_plus/feature_notifier.dart';
 ```
 
 ### Initialize
 
-Initialize and `await` feature notifier in your `main()` function by calling `FeatureNotifier.init()`. Not doing this can cause side effects that might tamper with expected behaviour.
+Previously, you had to initialize and `await` feature notifier in your `main()` function by calling `FeatureNotifier.init()`.
 
 ```dart
 void main() async {
@@ -41,7 +51,10 @@ void main() async {
 }
 ```
 
-## Feature Notifiers
+But as from 1.1.0 (plus version), you don't have to initialize in `main()`, because `shared_preferences` is now used instead of `get_storage`. Just call notifier widgets wherever it is needed without any initialization.
+
+
+### Add widgets
 
 There are four(4) unique and highly customizable feature notifiers available in this package with slightly different implementations.
 
@@ -53,8 +66,8 @@ Returns a simple and customizable horizontal bar.
 
 ```dart
 FeatureBarNotifier(
-  title: "We just released a new feature!",
-  featureKey: 2,
+  title: const Text("We just released a new feature!"),
+  featureKey: "test_bar_feature",
   onClose: () {},
   onTapCard: () {},
   showIcon: true,
@@ -69,14 +82,14 @@ Returns a simple and customizable Card
 
 ```dart
 FeatureCardNotifier(
-  title: "We just released a new feature!",
-  description: "Checkout the nwq feature that we just released and make."
-  featureKey: 2,
+  title: const Text("We just released a new feature!"),
+  description: "Checkout the new feature that we just released and make."
+  featureKey: "test_card_feature",
   onClose: () {},
   onTapCard: () {},
   showIcon: true,
   //use the hasButton parameter to display a button
-  hasButton:true,
+  hasButton: true,
 )
 ```
 
@@ -89,10 +102,10 @@ Returns a simple and customizable alert dialog.
 ```dart
 FeatureAlertNotifier.notify(
   context,
-  title: "We just released a new feature!",
-  description: "Checkout the nwq feature that we just released and make."
+  title: const Text("We just released a new feature!"),
+  description: const Text("Checkout the new feature that we just released and make."),
   onClose: () {},
-  featureKey: 3,
+  featureKey: "test_alert_feature",
   hasButton: true,
 );
 ```
@@ -106,10 +119,10 @@ void initState() {
     print("Build Completed");
     FeatureAlertNotifier.notify(
       context,
-      title: "We just released a new feature!",
-      description: "Checkout the nwq feature that we just released and make."
+      title: const Text("We just released a new feature!"),
+      description: const Text("Checkout the new feature that we just released and make."),
       onClose: () {},
-      featureKey: 3,
+      featureKey: "test_alert_feature",
       hasButton: true,
     );
   });
@@ -126,10 +139,10 @@ Returns a simple and customizable bottom modal sheet.
 ```dart
 FeatureBottomModalSheetNotifier.notify(
   context,
-  title: "We just released a new feature!",
-  description: "Checkout the nwq feature that we just released and make."
+  title: const Text("We just released a new feature!"),
+  description: const Text("Checkout the new feature that we just released and make."),
   onClose: () {},
-  featureKey: 3,
+  featureKey: "test_bottom_modal_sheet_feature",
   hasButton: true,
 );
 ```
@@ -143,10 +156,10 @@ void initState() {
     print("Build Completed");
     FeatureBottomModalSheetNotifier.notify(
       context,
-      title: "Alert Notifier",
-      description: "Modal sheet is a good way to display a feature",
+      title: const Text("We just released a new feature!"),
+      description: const Text("Checkout the new feature that we just released and make."),
       onClose: () {},
-      featureKey: 3,
+      featureKey: "test_bottom_modal_sheet_feature",
       hasButton: true,
     );
   });
@@ -161,10 +174,10 @@ As from version 1.0.7, the `FeatureAlertNotifier()` and `FeatureBottomModalSheet
 ```dart
    FeatureBottomModalSheetNotifier.notify(
       context,
-      title: "Alert Notifier",
-      description: "Modal sheet is a good way to display a feature",
+      title: const Text("Alert Notifier"),
+      description: const Text("Modal sheet is a good way to display a feature"),
       onClose: () {},
-      featureKey: 3,
+      featureKey: "test_bottom_modal_sheet_feature",
       hasButton: true,
       body: Row(...)
     );
@@ -196,10 +209,10 @@ Here is a list of parameters that you can use to customize your feature notifier
 
 ```dart
  int featureKey; /// to uniquely identify a feature
- String title;
+ Widget title;
  Color? titleColor;
  double? titleFontSize;
- String description;
+ Widget description;
  Color? descriptionColor;
  double? descriptionFontSize;
  String? buttonText;
@@ -211,21 +224,17 @@ Here is a list of parameters that you can use to customize your feature notifier
  void Function() onClose;
  void Function()? onTapButton;
  Color? backgroundColor;
-Color? strokeColor;
+ Color? strokeColor;
  double? strokeWidth;
  void Function() onTapCard; /// evoked when the feature notifier card is tapped
  bool? hasButton;
  Widget? body /// add custom body to your notifier
+ bool? showCloseIcon; /// show close icon or not (default: true)
 ```
 
 ## Contribution
 
-Of course the project is open source, and you can contribute to it [repository link](https://github.com/fiizzy/feature-notifier)
+This package is forked from [Feature Notifier](https://github.com/fiizzy/feature-notifier). 
 
-- If you **found a bug**, open an issue.
-- If you **have a feature request**, open an issue.
+- If you **found a bug** or **have a feature request**, open an issue.
 - If you **want to contribute**, submit a pull request.
-
-##### Love to meet you
-
-[Connect with me personally](https://linktr.ee/fisayo.obilaja)
