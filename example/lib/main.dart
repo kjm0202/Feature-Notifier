@@ -16,6 +16,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
       home: const MyHomePage(title: "Feature Notifier test"),
     );
   }
@@ -68,10 +70,10 @@ class _MyHomePageState extends State<MyHomePage> {
             Padding(
                 padding: const EdgeInsets.all(20),
                 child: FeatureCardNotifier(
-                  title: "Testing this out",
+                  title: const Text("Testing this out"),
                   hasButton: true,
-                  description:
-                      'You can now show items without inviting friends!',
+                  description: const Text(
+                      'You can now show items without inviting friends!'),
                   featureKey: 'show_items_without_inviting_friends',
                   onClose: () {},
                   onTapCard: () {},
@@ -81,8 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
             Padding(
               padding: const EdgeInsets.all(20),
               child: FeatureBarNotifier(
-                title:
-                    "Testing this out You have pushed the button this many times:",
+                title: const Text(
+                    "Testing this out You have pushed the button this many times:"),
 
                 featureKey: 'how_mant_times_button_pushed',
                 onClose: () {},
@@ -95,13 +97,18 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 FeatureBottomModalSheetNotifier.notify(
                   context,
-                  title: "Modal sheet example",
-                  description: "Modal sheet is a good way to display a feature",
+                  title: const Text(
+                    "Modal sheet example",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  description: const Text(
+                      "Modal sheet is a good way to display a feature"),
                   onClose: () {
                     debugPrint("The modal sheet was closed");
                   },
                   featureKey: 'test_modal_sheet',
                   hasButton: true,
+                  showCloseIcon: false,
                 );
               },
               child: const Text("Show modal sheet"),
@@ -110,13 +117,15 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 FeatureAlertNotifier.notify(
                   context,
-                  title: "Alert example",
-                  description: "Alert is a good way to display a feature",
+                  title: const Text("Alert example"),
+                  description:
+                      const Text("Alert is a good way to display a feature"),
                   onClose: () {
                     debugPrint("The alert was closed");
                   },
                   featureKey: 'test_alert',
                   hasButton: true,
+                  showCloseIcon: false,
                 );
               },
               child: const Text("Show alert"),
@@ -133,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           );
         },
-        label: const Text('Persist all features'),
+        label: const Text('Remove read histories'),
         icon: const Icon(Icons.clear),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
