@@ -23,8 +23,8 @@ class FeatureBottomModalSheetNotifier {
     BuildContext context, {
     required String featureKey,
     required void Function() onClose,
-    required String description,
-    required String title,
+    required Widget description,
+    required Widget title,
     String? buttonText,
     Color? backgroundColor,
     Color? buttonTextColor,
@@ -42,6 +42,7 @@ class FeatureBottomModalSheetNotifier {
     bool? showIcon,
     Color? buttonBackgroundColor,
     Widget? body,
+    bool? showCloseIcon = true,
   }) async {
     final isClosed = await FeatureNotifierStorage.read(featureKey);
     if (isClosed) return Container();
@@ -83,25 +84,28 @@ class FeatureBottomModalSheetNotifier {
             },
             child: LayoutBuilder(builder: (context, constraint) {
               return Container(
-                padding: const EdgeInsets.fromLTRB(12, 32, 12, 48),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                     color: backgroundColor ?? defaultBackgroundColor,
-                    borderRadius: const BorderRadius.all(Radius.circular(40))),
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16))),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
+                      padding: showCloseIcon ?? true
+                          ? const EdgeInsets.only(bottom: 0)
+                          : const EdgeInsets.only(bottom: 12),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Row(
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.only(
-                                      right: (showIcon ?? false ? 12 : 0)),
+                                  padding: EdgeInsets.only(right: 12),
                                   child: selectIcon(
                                     showIcon: showIcon,
                                     icon: icon,
@@ -109,44 +113,34 @@ class FeatureBottomModalSheetNotifier {
                                 ),
                                 SizedBox(
                                   width: constraint.maxWidth * .7,
-                                  child: Text(
-                                    title,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: titleFontSize ?? 16,
-                                        color: titleColor ?? defaultTitleColor),
-                                  ),
+                                  child: title,
                                 ),
                               ],
                             ),
-                            GestureDetector(
-                              child: Icon(Icons.close,
-                                  color:
-                                      closeIconColor ?? defaultCloseIconColor),
-                              onTap: () async {
-                                Navigator.pop(context);
-                                await FeatureNotifierStorage.write(
-                                    value: true, id: featureKey);
-                                onClose();
-                              },
-                            )
+                            if (showCloseIcon ?? true)
+                              IconButton(
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  await FeatureNotifierStorage.write(
+                                      value: true, id: featureKey);
+                                  onClose();
+                                },
+                                icon: Icon(Icons.close,
+                                    color: closeIconColor ??
+                                        defaultCloseIconColor),
+                              )
                           ]),
                     ),
-                    Text(
-                      description,
-                      style: TextStyle(
-                          fontSize: descriptionFontSize ?? 16,
-                          color: descriptionColor ?? defaultDescriptionColor),
-                    ),
+                    description,
                     body ?? Container(),
                     Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
+                      padding: const EdgeInsets.only(top: 16),
                       child: hasButton != null && hasButton != false
                           ? ElevatedButton(
                               onPressed: onTapButton,
                               style: ButtonStyle(
-                                elevation:
-                                    MaterialStateProperty.all<double>(10),
+                                /* elevation:
+                                    MaterialStateProperty.all<double>(10), */
                                 backgroundColor:
                                     MaterialStateProperty.all<Color?>(
                                   buttonBackgroundColor ??

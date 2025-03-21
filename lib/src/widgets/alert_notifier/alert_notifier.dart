@@ -22,8 +22,8 @@ class FeatureAlertNotifier {
     BuildContext context, {
     required String featureKey,
     required void Function() onClose,
-    required String description,
-    required String title,
+    required Widget description,
+    required Widget title,
     String? buttonText,
     Color? backgroundColor,
     Color? closeIconColor,
@@ -39,6 +39,7 @@ class FeatureAlertNotifier {
     bool? showIcon,
     Color? buttonBackgroundColor,
     Widget? body,
+    bool? showCloseIcon = true,
   }) async {
     final isClosed = await FeatureNotifierStorage.read(featureKey);
     if (isClosed) return Container();
@@ -76,13 +77,12 @@ class FeatureAlertNotifier {
                 backgroundColor: backgroundColor ?? defaultBackgroundColor,
                 title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Row(
                         children: [
                           Padding(
-                            padding: EdgeInsets.only(
-                                right: (showIcon ?? false ? 12 : 0)),
+                            padding: EdgeInsets.only(right: 12),
                             child: selectIcon(
                               showIcon: showIcon,
                               icon: icon,
@@ -91,48 +91,38 @@ class FeatureAlertNotifier {
                           SizedBox(
                             // width: MediaQuery.of(context).size.width *
                             //     .7,
-                            child: Text(
-                              title,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: titleFontSize ?? 16,
-                                  color: titleColor ?? defaultTitleColor),
-                            ),
+                            child: title,
                           ),
                         ],
                       ),
-                      GestureDetector(
-                        child: Icon(
-                          Icons.close,
-                          color: closeIconColor ?? defaultCloseIconColor,
-                        ),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          await FeatureNotifierStorage.write(
-                              value: true, id: featureKey);
-                          onClose();
-                        },
-                      )
+                      if (showCloseIcon ?? true)
+                        IconButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await FeatureNotifierStorage.write(
+                                value: true, id: featureKey);
+                            onClose();
+                          },
+                          icon: Icon(
+                            Icons.close,
+                            color: closeIconColor ?? defaultCloseIconColor,
+                          ),
+                        )
                     ]),
                 content: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      description,
-                      style: TextStyle(
-                          fontSize: descriptionFontSize ?? 16,
-                          color: descriptionColor ?? defaultDescriptionColor),
-                    ),
+                    description,
                     body ?? Container(),
                     Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
+                      padding: const EdgeInsets.only(top: 16),
                       child: hasButton != null && hasButton != false
                           ? ElevatedButton(
                               onPressed: onTapButton,
                               style: ButtonStyle(
-                                elevation:
-                                    MaterialStateProperty.all<double>(10),
+                                /* elevation:
+                                    MaterialStateProperty.all<double>(10), */
                                 backgroundColor:
                                     MaterialStateProperty.all<Color?>(
                                   buttonBackgroundColor ??

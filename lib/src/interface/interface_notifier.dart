@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 abstract class IFeatureNotifier {
   String get featureKey;
-  String get title;
+  Widget get title;
   Color? get titleColor;
   Color? get closeIconColor;
   double? get titleFontSize;
-  String get description;
+  Widget get description;
   Color? get descriptionColor;
   double? get descriptionFontSize;
   String? get buttonText;
@@ -22,4 +22,5 @@ abstract class IFeatureNotifier {
   double? get strokeWidth;
   void Function() get onTapCard;
   bool? get hasButton;
+  bool? get showCloseIcon;
 }

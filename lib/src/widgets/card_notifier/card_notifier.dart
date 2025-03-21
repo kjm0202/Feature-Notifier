@@ -32,7 +32,8 @@ class FeatureCardNotifier extends StatefulWidget implements IFeatureNotifier {
       this.titleFontSize,
       this.hasButton,
       this.showIcon,
-      this.buttonBackgroundColor});
+      this.buttonBackgroundColor,
+      this.showCloseIcon = true});
 
   @override
   State<FeatureCardNotifier> createState() => _FeatureCardNotifierState();
@@ -53,7 +54,7 @@ class FeatureCardNotifier extends StatefulWidget implements IFeatureNotifier {
   final double? buttonTextFontSize;
 
   @override
-  final String description;
+  final Widget description;
 
   @override
   final Color? descriptionColor;
@@ -81,7 +82,7 @@ class FeatureCardNotifier extends StatefulWidget implements IFeatureNotifier {
 
   ///This is the title of the feature that you want to show to your users
   @override
-  final String title;
+  final Widget title;
 
   @override
   final Color? titleColor;
@@ -101,6 +102,8 @@ class FeatureCardNotifier extends StatefulWidget implements IFeatureNotifier {
 
   @override
   final bool? hasButton;
+
+  final bool? showCloseIcon;
 }
 
 class _FeatureCardNotifierState extends State<FeatureCardNotifier> {
@@ -175,44 +178,31 @@ class _FeatureCardNotifierState extends State<FeatureCardNotifier> {
                                     ),
                                     SizedBox(
                                       width: constraint.maxWidth * .7,
-                                      child: Text(
-                                        widget.title,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize:
-                                                widget.titleFontSize ?? 16,
-                                            color: widget.titleColor ??
-                                                defaultTitleColor),
-                                      ),
+                                      child: widget.title,
                                     ),
                                   ],
                                 ),
-                                GestureDetector(
-                                  child: Icon(
-                                    Icons.close,
-                                    color: widget.closeIconColor ??
-                                        defaultCloseIconColor,
-                                  ),
-                                  onTap: () async {
-                                    await FeatureNotifierStorage.write(
-                                        value: true, id: widget.featureKey);
-                                    if (mounted) {
-                                      setState(() {
-                                        _isVisible = false;
-                                      });
-                                    }
-                                    widget.onClose();
-                                  },
-                                )
+                                if (widget.showCloseIcon ?? true)
+                                  GestureDetector(
+                                    child: Icon(
+                                      Icons.close,
+                                      color: widget.closeIconColor ??
+                                          defaultCloseIconColor,
+                                    ),
+                                    onTap: () async {
+                                      await FeatureNotifierStorage.write(
+                                          value: true, id: widget.featureKey);
+                                      if (mounted) {
+                                        setState(() {
+                                          _isVisible = false;
+                                        });
+                                      }
+                                      widget.onClose();
+                                    },
+                                  )
                               ]),
                         ),
-                        Text(
-                          widget.description,
-                          style: TextStyle(
-                              fontSize: widget.descriptionFontSize ?? 16,
-                              color: widget.descriptionColor ??
-                                  defaultDescriptionColor),
-                        ),
+                        widget.description,
                         Padding(
                           padding: const EdgeInsets.only(top: 12.0),
                           child: widget.hasButton != null &&
@@ -220,8 +210,8 @@ class _FeatureCardNotifierState extends State<FeatureCardNotifier> {
                               ? ElevatedButton(
                                   onPressed: widget.onTapButton,
                                   style: ButtonStyle(
-                                    elevation:
-                                        MaterialStateProperty.all<double>(10),
+                                    /* elevation:
+                                        MaterialStateProperty.all<double>(10), */
                                     backgroundColor:
                                         MaterialStateProperty.all<Color?>(
                                       widget.buttonBackgroundColor ??

@@ -9,9 +9,9 @@ void main() async {
   testWidgets("Test Feature Card Notifier Widget", (WidgetTester tester) async {
     ///Arrange widget for test
     final FeatureCardNotifier featureCardNotifier = FeatureCardNotifier(
-      title: "Test Title",
+      title: const Text("Test Title"),
       hasButton: true,
-      description: 'Test Description',
+      description: const Text("Test Description"),
       featureKey: 'test_feature_key',
       onClose: () {},
       onTapCard: () {},

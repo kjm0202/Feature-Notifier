@@ -20,11 +20,12 @@ class FeatureBarNotifier extends StatefulWidget {
       this.icon,
       this.strokeColor,
       this.strokeWidth,
+      this.fontWeight,
       this.titleColor,
       this.closeIconColor,
       this.titleFontSize,
       this.showIcon,
-      this.fontWeight});
+      this.showCloseIcon = true});
 
   @override
   State<FeatureBarNotifier> createState() => _FeatureBarNotifierState();
@@ -38,7 +39,7 @@ class FeatureBarNotifier extends StatefulWidget {
   final FontWeight? fontWeight;
 
   ///This is the tile of the feature that you want to show to your users
-  final String title;
+  final Widget title;
   final Color? titleColor;
   final Color? closeIconColor;
   final double? titleFontSize;
@@ -46,6 +47,7 @@ class FeatureBarNotifier extends StatefulWidget {
 
   ///This key is used to identify the particular feature that was built in the UI. Two features should not have the same feature key to avoid mis-behaviours
   final String featureKey;
+  final bool? showCloseIcon;
 }
 
 class _FeatureBarNotifierState extends State<FeatureBarNotifier> {
@@ -102,32 +104,23 @@ class _FeatureBarNotifierState extends State<FeatureBarNotifier> {
                           ),
                           SizedBox(
                             width: constraint.maxWidth * .7,
-                            child: Text(
-                              widget.title,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontWeight:
-                                      widget.fontWeight ?? FontWeight.w400,
-                                  fontSize: widget.titleFontSize ?? 16,
-                                  color:
-                                      widget.titleColor ?? defaultTitleColor),
-                            ),
+                            child: widget.title,
                           ),
-                          GestureDetector(
-                            child: Icon(Icons.close,
-                                color: widget.closeIconColor ??
-                                    defaultCloseIconColor),
-                            onTap: () async {
-                              await FeatureNotifierStorage.write(
-                                  value: true, id: widget.featureKey);
-                              if (mounted) {
-                                setState(() {
-                                  _isVisible = false;
-                                });
-                              }
-                              widget.onClose();
-                            },
-                          )
+                          if (widget.showCloseIcon ?? true)
+                            IconButton(
+                              onPressed: () async {
+                                await FeatureNotifierStorage.write(
+                                    value: true, id: widget.featureKey);
+                                if (mounted) {
+                                  setState(() {
+                                    _isVisible = false;
+                                  });
+                                }
+                              },
+                              icon: Icon(Icons.close,
+                                  color: widget.closeIconColor ??
+                                      defaultCloseIconColor),
+                            ),
                         ]),
                   )),
             );
