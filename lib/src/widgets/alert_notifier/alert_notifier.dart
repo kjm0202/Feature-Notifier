@@ -1,5 +1,5 @@
-import 'package:feature_notifier/feature_notifier.dart';
-import 'package:feature_notifier/src/utils/icon_selector.dart';
+import 'package:feature_notifier_plus/feature_notifier.dart';
+import 'package:feature_notifier_plus/src/utils/icon_selector.dart';
 import 'package:flutter/material.dart';
 
 class FeatureAlertNotifier {

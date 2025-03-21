@@ -1,4 +1,4 @@
-import 'package:feature_notifier/src/utils/storage.dart';
+import 'package:feature_notifier_plus/src/utils/storage.dart';
 
 class FeatureNotifier {
   ///Start the persisting of all feature notifiers. It is important to `await` this method
